@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 하스스톤 카드 보관함</title>
+    <style>
+        :root {
+            --bg-color: #15110e;
+            --card-bg: #2b1e16;
+            --text-color: #e5ba73;
+            --accent-color: #c5a880;
+            --tab-active: #f3dbb3;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(229, 186, 115, 0.6);
+            margin-bottom: 8px;
+        }
+
+        /* 직업 선택 탭 메인 메뉴 */
+        .tabs-container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3c2a21;
+            padding-bottom: 15px;
+        }
+
+        .tab-button {
+            background-color: #221710;
+            color: #a4875e;
+            border: 1px solid #4a3525;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            background-color: #3c2a21;
+            color: var(--text-color);
+        }
+
+        .tab-button.active {
+            background-color: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(197, 168, 128, 0.5);
+        }
+
+        /* 갤러리 그리드 */
+        .gallery-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            justify-items: center;
+            min-height: 300px;
+        }
+
+        /* 카드 스타일 */
+        .card-wrapper {
+            position: relative;
+            background-color: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: fit-content;
+            cursor: pointer;
+        }
+
+        .card-wrapper:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 25px rgba(229, 186, 115, 0.35);
+        }
+
+        .card-img {
+            width: 220px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            font-size: 1.1rem;
+            color: #77614c;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        /* 팝업 모달창 스타일 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 3px solid var(--accent-color);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 950px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 25px;
+            position: relative;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.5);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 2rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close-modal:hover { color: #fff; }
+
+        .modal-layout {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .main-card-view {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+            border-right: 2px solid #3c2a21;
+            padding-right: 20px;
+        }
+        @media (max-width: 768px) {
+            .main-card-view { border-right: none; padding-right: 0; }
+        }
+
+        .main-card-view img {
+            width: 100%;
+            max-width: 260px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border-radius: 10px;
+        }
+
+        .related-cards-view {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .related-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #4a3525;
+            padding-bottom: 10px;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .related-wrapper {
+            position: relative;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .related-img {
+            width: 100%;
+            display: block;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>카드 보관함</h1>
+        <p>카드를 선택하여 연계된 연관 카드를 확인하세요.</p>
+    </header>
+
+    <div class="tabs-container" id="tabs-menu">
+        <button class="tab-button active" data-class="neutral">중립</button>
+        <button class="tab-button" data-class="warlock">흑마법사</button>
+        <button class="tab-button" data-class="rogue">도적</button>
+        <button class="tab-button" data-class="mage">마법사</button>
+        <button class="tab-button" data-class="shaman">주술사</button>
+        <button class="tab-button" data-class="paladin">성기사</button>
+        <button class="tab-button" data-class="priest">사제</button>
+        <button class="tab-button" data-class="druid">드루이드</button>
+        <button class="tab-button" data-class="hunter">사냥꾼</button>
+        <button class="tab-button" data-class="warrior">전사</button>
+        <button class="tab-button" data-class="demonhunter">악마사냥꾼</button>
+        <button class="tab-button" data-class="deathknight">죽음의 기사</button>
+    </div>
+
+    <div class="gallery-container" id="gallery"></div>
+
+    <div class="modal-overlay" id="card-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal-btn">&times;</button>
+            <h2 style="margin-top:0; color:#fff;">카드 연계 정보</h2>
+            
+            <div class="modal-layout">
+                <div class="main-card-view">
+                    <img id="modal-main-img" src="" alt="선택한 카드">
+                    <p style="margin-top:10px; font-size:0.9rem; color:#aaa;">선택된 원본 카드</p>
+                </div>
+                
+                <div class="related-cards-view">
+                    <div class="related-header">
+                        <h3 style="margin:0; color:var(--text-color);">연관된 카드 목록</h3>
+                    </div>
+                    <div class="related-grid" id="related-gallery"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabsMenu = document.getElementById('tabs-menu');
+        const gallery = document.getElementById('gallery');
+        const cardModal = document.getElementById('card-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalMainImg = document.getElementById('modal-main-img');
+        const relatedGallery = document.getElementById('related-gallery');
+
+        let allCards = [];
+        let currentTab = 'neutral';
+
+        // 페이지 로드 시 깃허브 내부의 cards.json 파일을 읽어옵니다.
+        async function loadCardsData() {
+            try {
+                const response = await fetch('./cards.json');
+                if (!response.ok) throw new Error('데이터 파일을 찾을 수 없습니다.');
+                allCards = await response.json();
+                renderGallery();
+            } catch (error) {
+                console.error(error);
+                gallery.innerHTML = `<p class="empty-message">데이터 로드 실패: 깃허브에 cards.json 파일이 있는지 확인해 주세요.</p>`;
+            }
+        }
+
+        function setupTabs() {
+            tabsMenu.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tab-button')) {
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentTab = e.target.getAttribute('data-class');
+                    renderGallery();
+                }
+            });
+        }
+
+        function renderGallery() {
+            gallery.innerHTML = '';
+            const filteredCards = allCards.filter(card => card.cardClass === currentTab);
+
+            if (filteredCards.length === 0) {
+                const classNameKor = document.querySelector(`.tab-button[data-class="${currentTab}"]`).innerText;
+                gallery.innerHTML = `<p class="empty-message">[${classNameKor}] 직업에 등록된 카드가 없습니다.</p>`;
+                return;
+            }
+
+            filteredCards.forEach(card => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'card-wrapper';
+                wrapper.onclick = () => openCardModal(card);
+
+                const img = document.createElement('img');
+                img.src = card.src; // 이미지 경로 (예: ./images/card1.png)
+                img.className = 'card-img';
+
+                wrapper.appendChild(img);
+                gallery.appendChild(wrapper);
+            });
+        }
+
+        function openCardModal(card) {
+            modalMainImg.src = card.src;
+            relatedGallery.innerHTML = '';
+
+            if (card.related && card.related.length > 0) {
+                card.related.forEach(rCard => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'related-wrapper';
+
+                    const img = document.createElement('img');
+                    img.src = rCard.src;
+                    img.className = 'related-img';
+
+                    wrapper.appendChild(img);
+                    relatedGallery.appendChild(wrapper);
+                });
+            } else {
+                relatedGallery.innerHTML = '<p style="color:#77614c; grid-column:1/-1; text-align:center; padding-top:20px;">연관된 카드가 없습니다.</p>';
+            }
+
+            cardModal.style.display = 'flex';
+        }
+
+        closeModalBtn.onclick = () => cardModal.style.display = 'none';
+        cardModal.onclick = (e) => { if (e.target === cardModal) cardModal.style.display = 'none'; };
+
+        // 초기화 실행
+        setupTabs();
+        loadCardsData();
+    </script>
+</body>
+</html>

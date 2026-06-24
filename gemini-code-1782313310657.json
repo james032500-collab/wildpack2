@@ -1,0 +1,17 @@
+[
+  {
+    "id": "card_01",
+    "cardClass": "warlock",
+    "src": "./images/warlock_main.png",
+    "related": [
+      { "id": "rel_01", "src": "./images/warlock_token1.png" },
+      { "id": "rel_02", "src": "./images/warlock_token2.png" }
+    ]
+  },
+  {
+    "id": "card_02",
+    "cardClass": "deathknight",
+    "src": "./images/dk_main.png",
+    "related": []
+  }
+]
